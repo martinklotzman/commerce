@@ -3,7 +3,7 @@ from django.db import models
 
 
 class User(AbstractUser):
-    pass
+    watchlist = models.ManyToManyField('Listing', blank=True, related_name="watched_by")    
 
 class Category(models.Model):
     name = models.CharField(max_length=64, unique=True)
@@ -20,6 +20,10 @@ class Listing(models.Model):
     listing_status = models.BooleanField(default=True)  # True for active, False for closed
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listings")
     winner = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name="wins")
+    
+    def highest_bid(self):
+        bids = self.bids.order_by('-amount')
+        return bids[0].amount if bids else self.start_bid
 
     def __str__(self):
         return self.title
@@ -40,3 +44,11 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s comment on {self.listing.title}"
+    
+class Bid(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bids')
+    listing = models.ForeignKey('Listing', on_delete=models.CASCADE, related_name='bids')
+    amount = models.DecimalField(max_digits=8, decimal_places=2)
+
+    class Meta:
+        ordering = ['-amount']

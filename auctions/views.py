@@ -11,7 +11,8 @@ from .models import User, Listing
 
 
 def index(request):
-    return render(request, "auctions/index.html")
+    listings = Listing.objects.all() # Fetch all listing objects from the database
+    return render(request, "auctions/index.html", {"listings": listings})
 
 
 def login_view(request):
@@ -69,12 +70,15 @@ def register(request):
 def create_listing(request):
     if request.method == 'POST':
         form = ListingForm(request.POST)
+        print(request.POST)  # debug print to see the POST data
         if form.is_valid():
             listing = form.save(commit=False)
             listing.owner = request.user
             listing.save()
             messages.success(request, "Listing created successfully!")
             return HttpResponseRedirect(reverse("index"))
+        else:
+            print(form.errors)
     else:
         if not request.user.is_authenticated:
             return HttpResponseRedirect(reverse("login"))

@@ -3,5 +3,26 @@
 {% block body %}
     <h2>Active Listings</h2>
 
-    TODO
+    <div class="row">
+        {% for listing in listings %}
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    {% if listing.image_url %}
+                        <img src="{{ listing.image_url }}" alt="{{ listing.title }}" class="card-img-top">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ listing.title }}</h5>
+                        <p class="card-text">{{ listing.description }}</p>
+                        <p class="card-text">Starting bid: ${{ listing.start_bid }}</p>
+                        <a href="#" class="btn btn-primary">Go to listing</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <p>No active listings.</p>
+            </div>
+        {% endfor %}
+    </div>
+    
 {% endblock %}

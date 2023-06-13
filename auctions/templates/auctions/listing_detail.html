@@ -53,6 +53,26 @@
                         {% endfor %}
                     </div>
                 {% endif %}
+                <!-- Form to add a new comment -->
+                {% if user.is_authenticated %}
+                <form method="POST" action="{% url 'add_comment' listing.id %}">
+                    {% csrf_token %}
+                    <br>
+                    <textarea name="text" class="form-control" rows="3" required></textarea>
+                    <br>
+                    <button type="submit" class="btn btn-info">Add Comment</button>
+                </form>
+                {% endif %}
+                {% for comment in comments %}
+                    <div>
+                        <br>
+                        <strong>{{ comment.user.username }}</strong>
+                        <p>{{ comment.text }}</p>
+                        <p>{{ comment.time }}</p>
+                    </div>
+                {% empty %}
+                    <p>No comments yet.</p>
+                {% endfor %}
             </div>
         </div>
     </div>

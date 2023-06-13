@@ -9,7 +9,7 @@ from .forms import ListingForm, BidForm
 from django.db.models import Max
 
 
-from .models import User, Listing, Bid
+from .models import User, Listing, Bid, Comment
 
 
 def index(request):
@@ -119,11 +119,16 @@ def listing_detail(request, listing_id):
 
     is_in_watchlist = request.user.watchlist.filter(pk=listing_id).exists() if request.user.is_authenticated else False
     current_bid = listing.highest_bid() if listing.bids.exists() else listing.start_bid
+    
+    # Fetch all comments associated with the listing
+    comments = listing.comments.all()
+    
     return render(request, "auctions/listing_detail.html", {
         "listing": listing,
         "is_in_watchlist": is_in_watchlist,
         "bid_form": bid_form,
         "current_bid": current_bid,
+        "comments": comments,
     })
     
 @login_required
@@ -163,3 +168,12 @@ def close_listing(request, listing_id):
             messages.success(request, "Listing closed successfully!")
         
     return redirect('listing_detail', listing_id=listing_id)
+
+@login_required
+def add_comment(request, listing_id):
+    listing = get_object_or_404(Listing, id=listing_id)
+    if request.method == "POST":
+        text = request.POST['text']
+        Comment.objects.create(user=request.user, listing=listing, text=text)
+        messages.success(request, "Comment added successfully!")
+    return redirect('listing_detail', listing_id=listing.id)

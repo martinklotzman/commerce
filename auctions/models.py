@@ -44,6 +44,9 @@ class Comment(models.Model):
     text = models.TextField()
     time = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ['-time']
+
     def __str__(self):
         return f"{self.user.username}'s comment on {self.listing.title}"
     
@@ -54,3 +57,4 @@ class Bid(models.Model):
 
     class Meta:
         ordering = ['-amount']
+        

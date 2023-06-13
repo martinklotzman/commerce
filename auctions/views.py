@@ -142,3 +142,24 @@ def toggle_watchlist(request, listing_id):
     # Redirect back to the listing detail page.
     return HttpResponseRedirect(reverse('listing_detail', args=[listing_id]))
 
+@login_required
+def close_listing(request, listing_id):
+    listing = get_object_or_404(Listing, pk=listing_id)
+
+    if request.method == "POST":
+        if request.user == listing.owner:
+            # Close the listing
+            listing.is_active = False
+
+            # If the listing has bids, set the winner to the user who placed the highest bid
+            if listing.bids.exists():
+                highest_bid = listing.bids.order_by('-amount').first()
+                listing.winner = highest_bid.user
+
+            # Save the changes
+            listing.save()
+
+            # Display a success message
+            messages.success(request, "Listing closed successfully!")
+        
+    return redirect('listing_detail', listing_id=listing_id)

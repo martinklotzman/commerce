@@ -20,6 +20,7 @@ class Listing(models.Model):
     listing_status = models.BooleanField(default=True)  # True for active, False for closed
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listings")
     winner = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name="wins")
+    is_active = models.BooleanField(default=True)
     
     def highest_bid(self):
         bids = self.bids.order_by('-amount')

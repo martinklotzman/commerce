@@ -16,14 +16,22 @@
                     <img src="{{ listing.image_url }}" alt="{{ listing.title }}" class="img-fluid">
                 {% endif %}
                 {% if user.is_authenticated %}
-                    <form method="POST" action="{% url 'toggle_watchlist' listing.id %}" class="mt-3">
-                        {% csrf_token %}
-                        {% if user in listing.watched_by.all %}
-                            <button type="submit" class="btn btn-danger">Remove from Watchlist</button>
-                        {% else %}
-                            <button type="submit" class="btn btn-primary">Add to Watchlist</button>
+                    <div class="d-flex mt-3">
+                        <form method="POST" action="{% url 'toggle_watchlist' listing.id %}">
+                            {% csrf_token %}
+                            {% if user in listing.watched_by.all %}
+                                <button type="submit" class="btn btn-danger mr-3">Remove from Watchlist</button>
+                            {% else %}
+                                <button type="submit" class="btn btn-primary mr-3">Add to Watchlist</button>
+                            {% endif %}
+                        </form>
+                        {% if request.user == listing.owner and listing.is_active %}
+                            <form method="POST" action="{% url 'close_listing' listing.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">Close Listing</button>
+                            </form>
                         {% endif %}
-                    </form>
+                    </div>
                     <form method="POST" action="{% url 'listing_detail' listing.id %}" class="mt-3">
                         {% csrf_token %}
                         {{ bid_form }}

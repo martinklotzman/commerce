@@ -15,6 +15,9 @@
                 {% if listing.image_url %}
                     <img src="{{ listing.image_url }}" alt="{{ listing.title }}" class="img-fluid">
                 {% endif %}
+                {% if listing.winner %}
+                    <p class="text-success">This listing was won by {{ listing.winner.username }}!</p>
+                {% endif %}
                 {% if user.is_authenticated %}
                     <div class="d-flex mt-3">
                         <form method="POST" action="{% url 'toggle_watchlist' listing.id %}">
@@ -32,12 +35,14 @@
                             </form>
                         {% endif %}
                     </div>
-                    <form method="POST" action="{% url 'listing_detail' listing.id %}" class="mt-3">
-                        {% csrf_token %}
-                        {{ bid_form }}
-                        <br>
-                        <button type="submit" class="btn btn-primary" name="place_bid">Place Bid</button>
-                    </form>
+                    {% if user.is_authenticated and listing.is_active %}
+                        <form method="POST" action="{% url 'listing_detail' listing.id %}" class="mt-3">
+                            {% csrf_token %}
+                            {{ bid_form }}
+                            <br>
+                            <button type="submit" class="btn btn-primary" name="place_bid">Place Bid</button>
+                        </form>
+                    {% endif %}
                 {% endif %}
                 {% if messages %}
                     <div class="container mt-3">

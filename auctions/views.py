@@ -3,9 +3,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from .forms import ListingForm, BidForm
+from django.db.models import Max
+
 
 from .models import User, Listing, Bid
 
@@ -90,8 +92,6 @@ def create_listing(request):
 def listing_detail(request, listing_id):
     # Fetch the listing data. Raise a 404 error if the object doesn't exist.
     listing = get_object_or_404(Listing, pk=listing_id)
-    # Calling highest_bid() on listing instance
-    current_bid = listing.highest_bid()
     
     # Create a new instance of BidForm
     bid_form = BidForm(request.POST or None)
@@ -110,21 +110,19 @@ def listing_detail(request, listing_id):
             bid = bid_form.save(commit=False)
             bid.user = request.user  # assign the current user to the bid
             bid.listing = listing
-            if listing.start_bid <= bid.amount and (not listing.bids.exists() or listing.bids.last().amount < bid.amount):
+            highest_bid = listing.bids.aggregate(Max('amount'))['amount__max'] or 0
+            if bid.amount > highest_bid or (not listing.bids.exists() and bid.amount >= listing.start_bid):
                 bid.save()
                 messages.success(request, "Bid placed successfully!")
             else:
-                messages.error(request, "Bid should be higher than the current highest bid or starting bid.")
-    else:
-        bid_form = BidForm()
+                messages.warning(request, "Bid should be higher than the current highest bid or starting bid.")
 
-    # Check if the listing is currently in the user's watchlist. If the user is not logged in, return False. 
     is_in_watchlist = request.user.watchlist.filter(pk=listing_id).exists() if request.user.is_authenticated else False
-
+    current_bid = listing.highest_bid() if listing.bids.exists() else listing.start_bid
     return render(request, "auctions/listing_detail.html", {
         "listing": listing,
-        "bid_form": bid_form,
         "is_in_watchlist": is_in_watchlist,
+        "bid_form": bid_form,
         "current_bid": current_bid,
     })
     

@@ -8,12 +8,15 @@
             <div class="col-md-4">
                 <div class="card mb-4">
                     {% if listing.image_url %}
-                        <img src="{{ listing.image_url }}" alt="{{ listing.title }}" class="card-img-top">
+                        <img src="{{ listing.image_url }}" alt="{{ listing.title }}" class="card-img-top fixed-size">
                     {% endif %}
                     <div class="card-body">
                         <h5 class="card-title">{{ listing.title }}</h5>
                         <p class="card-text">{{ listing.description }}</p>
                         <p class="card-text">Starting bid: ${{ listing.start_bid }}</p>
+                        {% if listing.bids.exists %}
+                            <p class="card-text">Current bid: ${{ listing.highest_bid }}</p>
+                        {% endif %}
                         <a href="{% url 'listing_detail' listing.id %}" class="btn btn-primary">Go to listing</a>
                     </div>
                 </div>

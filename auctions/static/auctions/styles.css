@@ -1,3 +1,10 @@
 body {
     padding: 10px;
 }
+
+.fixed-size {
+    height: 275px;
+    width: 275px; 
+    object-fit: cover;
+}
+

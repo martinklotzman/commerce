@@ -25,6 +25,7 @@ class Listing(models.Model):
         bids = self.bids.order_by('-amount')
         return bids[0].amount if bids else self.start_bid
 
+
     def __str__(self):
         return self.title
 

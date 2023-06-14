@@ -177,3 +177,13 @@ def add_comment(request, listing_id):
         Comment.objects.create(user=request.user, listing=listing, text=text)
         messages.success(request, "Comment added successfully!")
     return redirect('listing_detail', listing_id=listing.id)
+
+@login_required
+def watchlist(request):
+    # Get the current user's watchlist
+    watchlist = request.user.watchlist.all()
+
+    # Render the watchlist page
+    return render(request, "auctions/watchlist.html", {
+        "watchlist": watchlist
+    })

@@ -9,7 +9,7 @@ from .forms import ListingForm, BidForm
 from django.db.models import Max
 
 
-from .models import User, Listing, Bid, Comment
+from .models import User, Listing, Bid, Comment, Category
 
 
 def index(request):
@@ -187,3 +187,12 @@ def watchlist(request):
     return render(request, "auctions/watchlist.html", {
         "watchlist": watchlist
     })
+
+def categories(request):
+    categories = Category.objects.all()
+    return render(request, 'auctions/categories.html', {'categories': categories})
+
+def category_detail(request, category_id):
+    category = get_object_or_404(Category, pk=category_id)
+    listings = Listing.objects.filter(category=category, is_active=True)
+    return render(request, 'auctions/category_detail.html', {'category': category, 'listings': listings})
